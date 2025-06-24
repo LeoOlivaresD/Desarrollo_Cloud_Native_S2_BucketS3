@@ -60,6 +60,13 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ms-administracion-archivos:latest
             # Parar y eliminar cualquier contenedor previo
             docker stop ms-administracion-archivos || true && docker rm ms-administracion-archivos || true
-            # Iniciar el contenedor
-            docker run -d --name ms-administracion-archivos -p 8081:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ms-administracion-archivos:latest
+            # Iniciar el contenedor con las variables de entorno necesarias para AWS
+            docker run -d --name ms-administracion-archivos \
+              --restart unless-stopped \
+              -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+              -e AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }} \
+              -e AWS_REGION=us-east-1 \
+              -p 8081:8080 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/ms-administracion-archivos:latest
           EOF
