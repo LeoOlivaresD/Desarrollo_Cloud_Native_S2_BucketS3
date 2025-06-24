@@ -25,9 +25,17 @@ public class AwsConfig {
 	private String region;
 
 	@Bean
-	S3Client s3Client() {
-		return S3Client.builder().region(Region.of(region)).credentialsProvider(
-				StaticCredentialsProvider.create(AwsSessionCredentials.create(accessKey, secretKey, sessionToken)))
+	public S3Client s3Client() {
+		String accessKey = System.getenv("AWS_ACCESS_KEY_ID");
+		String secretKey = System.getenv("AWS_SECRET_ACCESS_KEY");
+		String sessionToken = System.getenv("AWS_SESSION_TOKEN");
+		String region = System.getenv("AWS_REGION");
+
+		return S3Client.builder()
+				.region(Region.of(region))
+				.credentialsProvider(
+						StaticCredentialsProvider.create(
+								AwsSessionCredentials.create(accessKey, secretKey, sessionToken)))
 				.build();
 	}
 }
