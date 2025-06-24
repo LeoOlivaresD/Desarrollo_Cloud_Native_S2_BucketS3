@@ -27,12 +27,12 @@ jobs:
       # Paso 3: Construir la imagen de Docker
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest .
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ms-administracion-archivos:latest .
 
       # Paso 4: Hacer push de la imagen a DockerHub
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/ms-administracion-archivos:latest
           
      # Paso 5: Configurar credenciales de AWS para SSH, incluyendo AWS_SESSION_TOKEN
       - name: Set up AWS credentials
@@ -57,9 +57,9 @@ jobs:
             # Autenticar en DockerHub desde EC2
             echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
             # Descargar la última versión de la imagen
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ms-administracion-archivos:latest
             # Parar y eliminar cualquier contenedor previo
-            docker stop my-app || true && docker rm my-app || true
+            docker stop ms-administracion-archivos || true && docker rm ms-administracion-archivos || true
             # Iniciar el contenedor
-            docker run -d --name my-app -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+            docker run -d --name ms-administracion-archivos -p 8081:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ms-administracion-archivos:latest
           EOF
