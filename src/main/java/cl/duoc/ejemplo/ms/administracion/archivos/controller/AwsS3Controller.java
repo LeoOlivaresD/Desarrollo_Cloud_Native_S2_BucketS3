@@ -2,6 +2,7 @@ package cl.duoc.ejemplo.ms.administracion.archivos.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import cl.duoc.ejemplo.ms.administracion.archivos.dto.S3ObjectDto;
 import cl.duoc.ejemplo.ms.administracion.archivos.service.AwsS3Service;
+import cl.duoc.ejemplo.ms.administracion.archivos.service.EfsService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,7 +25,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AwsS3Controller {
 
+	@Autowired
 	private final AwsS3Service awsS3Service;
+
+	@Autowired
+	private EfsService efsService;
 
 	// Listar objetos en un bucket
 	@GetMapping("/{bucket}/objects")
@@ -50,12 +56,21 @@ public class AwsS3Controller {
 	}
 
 	// Subir archivo
-	@PostMapping("/{bucket}/object/{key}")
-	public ResponseEntity<Void> uploadObject(@PathVariable String bucket, @PathVariable String key,
+	@PostMapping("/{bucket}/object")
+	public ResponseEntity<Void> uploadObject(@PathVariable String bucket, @RequestParam String key,
 			@RequestParam("file") MultipartFile file) {
 
-		awsS3Service.upload(bucket, key, file);
-		return ResponseEntity.ok().build();
+		try {
+
+			efsService.saveToEfs(key, file);
+
+			awsS3Service.upload(bucket, key, file);
+
+			return ResponseEntity.ok().build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.internalServerError().build();
+		}
 	}
 
 	// Mover objeto dentro del mismo bucket
