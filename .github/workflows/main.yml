@@ -1,0 +1,65 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main   
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:    
+jobs: 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Paso 1: Checkout del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Paso 2: Autenticar en DockerHub
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Paso 3: Construir la imagen de Docker
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest .
+
+      # Paso 4: Hacer push de la imagen a DockerHub
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+          
+     # Paso 5: Configurar credenciales de AWS para SSH, incluyendo AWS_SESSION_TOKEN
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Cambia a tu región
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}  # Añadido aquí
+    # Paso 5.5: 
+      - name: Add SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+
+      # Paso 6: Conectarse a EC2 y desplegar el contenedor
+      - name: SSH commands to deploy
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.USER_SERVER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            # Autenticar en DockerHub desde EC2
+            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            # Descargar la última versión de la imagen
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+            # Parar y eliminar cualquier contenedor previo
+            docker stop my-app || true && docker rm my-app || true
+            # Iniciar el contenedor
+            docker run -d --name my-app -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+          EOF
