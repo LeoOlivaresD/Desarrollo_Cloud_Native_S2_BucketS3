@@ -27,6 +27,7 @@ public class AwsS3Service {
 
 	private final S3Client s3Client;
 
+	// Lista los objetos dentro del bucket especificado en S3 (hasta un máximo de 1000), devolviendo una lista de objetos DTO con clave, tamaño y fecha de modificación
 	public List<S3ObjectDto> listObjects(String bucket) {
 
 		ListObjectsV2Request request = ListObjectsV2Request.builder().bucket(bucket).build();
@@ -37,14 +38,14 @@ public class AwsS3Service {
 				.collect(Collectors.toList());
 	}
 
-	// Obtener objeto como InputStream (ResponseInputStream)
+	// Descarga un objeto desde S3 y lo retorna como un InputStream, útil para leer el contenido de forma secuencial (por ejemplo, al copiarlo a otro flujo o procesarlo sin cargarlo todo en memoria)
 	public ResponseInputStream<GetObjectResponse> getObjectInputStream(String bucket, String key) {
 
 		GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
 		return s3Client.getObject(getObjectRequest);
 	}
 
-	// Descargar como byte[]
+	// Descarga un objeto desde S3 y lo retorna como un arreglo de bytes (útil para manejar archivos en memoria, como para enviar por REST o guardar temporalmente)
 	public byte[] downloadAsBytes(String bucket, String key) {
 
 		GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
@@ -52,7 +53,7 @@ public class AwsS3Service {
 		return responseBytes.asByteArray();
 	}
 
-	// Subir archivo
+	//Subir archivo desde MultipartFile ( para subir archivos con usuario externo)
 	public void upload(String bucket, String key, MultipartFile file) {
 		try {
 			PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(key)
@@ -63,7 +64,7 @@ public class AwsS3Service {
 		}
 	}
 
-	// Sube archivo desde el entorno local a un bucket S3
+	// Sube archivo desde el entorno local a un bucket S3 (subir un archivo que ya existe en el servidor (por ejemplo, un .pdf generado por otra clase)
 	public void uploadFromPath(String bucket, String key, Path path) {
 		try {
 			PutObjectRequest putRequest = PutObjectRequest.builder()
@@ -77,7 +78,7 @@ public class AwsS3Service {
 			throw new RuntimeException("Error uploading file from path to S3", e);
 		}
 	}
-	// Mover objeto (copiar + borrar)
+	// Mueve un objeto dentro del mismo bucket S3 copiándolo a una nueva clave y eliminando la original (equivale a un "rename" manual en S3)
 	public void moveObject(String bucket, String sourceKey, String destKey) {
 		CopyObjectRequest copyRequest = CopyObjectRequest.builder().sourceBucket(bucket).sourceKey(sourceKey)
 				.destinationBucket(bucket).destinationKey(destKey).build();
