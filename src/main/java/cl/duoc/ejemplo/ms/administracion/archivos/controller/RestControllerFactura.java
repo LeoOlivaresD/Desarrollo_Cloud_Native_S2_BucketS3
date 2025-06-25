@@ -88,7 +88,7 @@ public class RestControllerFactura {
 
     /*Permite subir un archivo asociado a una factura existente, utilizando su ID.
     El archivo es recibido como MultipartFile y procesado por el servicio correspondiente.
-    Devuelve una respuesta 200 OK si la operación se realiza correctamente.*/
+    Devuelve una respuesta 200 OK si la operación se realiza correctamente.(importante ! el key dentro de postman debe ser llamado igual al campo que tenemos en este metodo dentro de @RequestPAram osea archivo*/
     @PostMapping("/{id}/upload")
     public ResponseEntity<String> subirFactura(@PathVariable Long id,
                                                @RequestParam("archivo") MultipartFile archivo) throws IOException {
