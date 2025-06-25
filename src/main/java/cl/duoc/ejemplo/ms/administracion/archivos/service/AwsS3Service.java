@@ -1,5 +1,6 @@
 package cl.duoc.ejemplo.ms.administracion.archivos.service;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,6 +63,20 @@ public class AwsS3Service {
 		}
 	}
 
+	// Sube archivo desde el entorno local a un bucket S3
+	public void uploadFromPath(String bucket, String key, Path path) {
+		try {
+			PutObjectRequest putRequest = PutObjectRequest.builder()
+					.bucket(bucket)
+					.key(key)
+					.contentType("application/pdf")
+					.build();
+
+			s3Client.putObject(putRequest, path);
+		} catch (Exception e) {
+			throw new RuntimeException("Error uploading file from path to S3", e);
+		}
+	}
 	// Mover objeto (copiar + borrar)
 	public void moveObject(String bucket, String sourceKey, String destKey) {
 		CopyObjectRequest copyRequest = CopyObjectRequest.builder().sourceBucket(bucket).sourceKey(sourceKey)
