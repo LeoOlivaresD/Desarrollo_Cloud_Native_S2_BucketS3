@@ -55,7 +55,7 @@ public class RestControllerFactura {
     }
 
     //Busca una factura por id si la encuentra genera un archivo pdf que lo guarda en el s3
-    @GetMapping("/{id}/pdf")
+    /*@GetMapping("/{id}/pdf")
     public ResponseEntity<String> generarPdfYSubir(@PathVariable Long id) {
         try {
             facturaService.generarYSubirPdfFactura(id);
@@ -63,6 +63,16 @@ public class RestControllerFactura {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body("Error al generar PDF: " + e.getMessage());
+        }
+    } */
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<String> generarPdfFactura(@PathVariable Long id) {
+        try {
+            String url = facturaService.generarYSubirPdfFactura(id);
+            return ResponseEntity.ok("PDF generado y subido exitosamente para la factura ID: " + id + " Archivo disponible en: " + url);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Error: " + e.getMessage());
         }
     }
 

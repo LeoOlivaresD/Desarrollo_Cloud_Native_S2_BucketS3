@@ -91,7 +91,7 @@ public class FacturaService {
         return rutaLocal;
     }
 
-    public String generarYSubirPdfFactura(Long id) throws IOException {
+    /*public String generarYSubirPdfFactura(Long id) throws IOException {
         Factura factura = facturaRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Factura no encontrada con ID: " + id));
 
@@ -103,7 +103,29 @@ public class FacturaService {
         facturaRepository.save(factura);
 
         return pdfGenerado.getFileName().toString();
-    }
+    } */
+
+    public String generarYSubirPdfFactura(Long id) throws IOException {
+    Factura factura = facturaRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Factura no encontrada con ID: " + id));
+
+    Path pdfGenerado = generarPdfDesdeFactura(factura);
+
+    // Generamos la ruta relativa a S3 en base al cliente y la fecha
+    String fechaFolder = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+    String rutaRelativa = factura.getClienteId() + "/" + fechaFolder + "/" + pdfGenerado.getFileName();
+
+    // Subimos el archivo
+    awsS3Service.uploadFromPath(bucketName, rutaRelativa, pdfGenerado);
+
+    // Actualizamos la entidad
+    factura.setNombreArchivo(pdfGenerado.getFileName().toString());
+    facturaRepository.save(factura);
+
+    // Devolvemos la URL directa al archivo en S3
+    return "https://" + bucketName + ".s3.amazonaws.com/" + rutaRelativa;
+}
+
 
 
 
