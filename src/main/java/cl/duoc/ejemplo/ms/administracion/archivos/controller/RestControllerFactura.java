@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,6 +53,19 @@ public class RestControllerFactura {
         Optional<Factura> factura = facturaService.obtenerFactura(id);
         return factura.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
+
+    //Busca una factura por id si la encuentra genera un archivo pdf que lo guarda en el s3
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<String> generarPdfYSubir(@PathVariable Long id) {
+        try {
+            facturaService.generarYSubirPdfFactura(id);
+            return ResponseEntity.ok("PDF generado y subido exitosamente para la factura ID: " + id);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Error al generar PDF: " + e.getMessage());
+        }
+    }
+
 
     /*  Retorna el historial completo de facturas asociadas a un cliente según su ID.
     Responde con una lista de facturas y un estado 200 OK.*/

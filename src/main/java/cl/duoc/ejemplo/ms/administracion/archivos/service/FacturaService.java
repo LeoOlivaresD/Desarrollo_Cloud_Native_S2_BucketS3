@@ -8,7 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 import cl.duoc.ejemplo.ms.administracion.archivos.entity.Factura;
 import cl.duoc.ejemplo.ms.administracion.archivos.repository.FacturaRepository;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -64,4 +66,45 @@ public class FacturaService {
         factura.setNombreArchivo(nombreArchivo);
         facturaRepository.save(factura);
     }
+
+    public Path generarPdfDesdeFactura(Factura factura) throws IOException {
+        String fechaFolder = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        String nombreArchivo = "factura_" + factura.getId() + ".pdf";
+        String rutaRelativa = factura.getClienteId() + "/" + fechaFolder + "/" + nombreArchivo;
+        Path rutaLocal = Path.of("/mnt/efs", rutaRelativa);
+
+        Files.createDirectories(rutaLocal.getParent());
+
+        try (OutputStream out = new FileOutputStream(rutaLocal.toFile())) {
+            com.lowagie.text.Document document = new com.lowagie.text.Document();
+            com.lowagie.text.pdf.PdfWriter.getInstance(document, out);
+            document.open();
+            document.addTitle("Factura #" + factura.getId());
+            document.add(new com.lowagie.text.Paragraph("Factura ID: " + factura.getId()));
+            document.add(new com.lowagie.text.Paragraph("Cliente ID: " + factura.getClienteId()));
+            document.add(new com.lowagie.text.Paragraph("Fecha: " + factura.getFechaEmision()));
+            document.add(new com.lowagie.text.Paragraph("Detalle: " + factura.getDescripcion()));
+            document.add(new com.lowagie.text.Paragraph("Total: $" + factura.getMonto()));
+            document.close();
+        }
+
+        return rutaLocal;
+    }
+
+    public String generarYSubirPdfFactura(Long id) throws IOException {
+        Factura factura = facturaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Factura no encontrada con ID: " + id));
+
+        Path pdfGenerado = generarPdfDesdeFactura(factura);
+        String rutaRelativa = Path.of("/mnt/efs").relativize(pdfGenerado).toString();
+        awsS3Service.uploadFromPath(bucketName, rutaRelativa, pdfGenerado);
+
+        factura.setNombreArchivo(pdfGenerado.getFileName().toString());
+        facturaRepository.save(factura);
+
+        return pdfGenerado.getFileName().toString();
+    }
+
+
+
 }
