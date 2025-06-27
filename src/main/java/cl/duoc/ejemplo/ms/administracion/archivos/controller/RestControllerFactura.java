@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import cl.duoc.ejemplo.ms.administracion.archivos.dto.DtoFactura;
 import cl.duoc.ejemplo.ms.administracion.archivos.entity.Factura;
-import cl.duoc.ejemplo.ms.administracion.archivos.service.AwsS3Service;
 import cl.duoc.ejemplo.ms.administracion.archivos.service.FacturaService;
 
 @RestController
@@ -28,12 +26,9 @@ import cl.duoc.ejemplo.ms.administracion.archivos.service.FacturaService;
 public class RestControllerFactura {
 
     private final FacturaService facturaService;
-    private final AwsS3Service awsS3Service;
-    @Value("${aws.bucket.name}")
-    private String bucketName;
+
     public RestControllerFactura(FacturaService facturaService) {
         this.facturaService = facturaService;
-        this.awsS3Service = new AwsS3Service();
     }
 
     /*  Crea una nueva factura a partir de los datos enviados en el cuerpo de la petición.
@@ -60,7 +55,7 @@ public class RestControllerFactura {
     }
 
     //Busca una factura por id si la encuentra genera un archivo pdf que lo guarda en el s3
-    /*@GetMapping("/{id}/pdf")
+    @GetMapping("/{id}/pdf")
     public ResponseEntity<String> generarPdfYSubir(@PathVariable Long id) {
         try {
             facturaService.generarYSubirPdfFactura(id);
@@ -68,27 +63,6 @@ public class RestControllerFactura {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body("Error al generar PDF: " + e.getMessage());
-        }
-    } */
-    /*/@GetMapping("/{id}/pdf")
-    public ResponseEntity<String> generarPdfFactura(@PathVariable Long id) {
-        try {
-            String url = facturaService.generarYSubirPdfFactura(id);
-            return ResponseEntity.ok("PDF generado y subido exitosamente para la factura ID: " + id + " Archivo disponible en: " + url);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body("Error: " + e.getMessage());
-        }
-    } */
-    @GetMapping("/{id}/pdf")
-    public ResponseEntity<String> generarPdfFactura(@PathVariable Long id) {
-        try {
-            String key = facturaService.generarYSubirPdfFactura(id);
-            String url = awsS3Service.generatePresignedUrl(bucketName, key);
-            return ResponseEntity.ok("PDF generado y subido exitosamente para la factura ID: " + id + "\nURL temporal: " + url);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body("Error: " + e.getMessage());
         }
     }
 

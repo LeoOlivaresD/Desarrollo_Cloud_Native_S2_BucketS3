@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -21,29 +20,12 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import java.time.Duration;
-
 
 @Service
 @RequiredArgsConstructor
 public class AwsS3Service {
 
 	private final S3Client s3Client;
-	private final S3Presigner s3Presigner;
-
-	public AwsS3Service() {
-    this.s3Client = S3Client.builder()
-            .region(Region.US_EAST_1)
-            .build();
-
-    this.s3Presigner = S3Presigner.builder()
-            .region(Region.US_EAST_1)
-            .build();
-}
-
 
 	// Lista los objetos dentro del bucket especificado en S3 (hasta un máximo de 1000), devolviendo una lista de objetos DTO con clave, tamaño y fecha de modificación
 	public List<S3ObjectDto> listObjects(String bucket) {
@@ -111,16 +93,4 @@ public class AwsS3Service {
 		DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder().bucket(bucket).key(key).build();
 		s3Client.deleteObject(deleteRequest);
 	}
-
-	public String generatePresignedUrl(String bucket, String key) {
-		GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-			.bucket(bucket)
-			.key(key)
-			.build();
-
-		return s3Presigner.presignGetObject(r -> r.signatureDuration(Duration.ofMinutes(15))
-			.getObjectRequest(getObjectRequest))
-			.url().toString();
-	}
-
 }
