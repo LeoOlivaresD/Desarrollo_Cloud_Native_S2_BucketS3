@@ -1,11 +1,13 @@
 package cl.duoc.ejemplo.ms.administracion.archivos.controller;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,10 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.HandlerMapping;
 
 import cl.duoc.ejemplo.ms.administracion.archivos.dto.S3ObjectDto;
 import cl.duoc.ejemplo.ms.administracion.archivos.service.AwsS3Service;
 import cl.duoc.ejemplo.ms.administracion.archivos.service.EfsService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -47,14 +51,25 @@ public class AwsS3Controller {
 				.contentType(MediaType.APPLICATION_OCTET_STREAM).body(fileBytes);
 	}
 
-	// Descargar archivo como byte[]
-	@GetMapping("/{bucket}/object/{key}")
-	public ResponseEntity<byte[]> downloadObject(@PathVariable String bucket, @PathVariable String key) {
-		byte[] fileBytes = awsS3Service.downloadAsBytes(bucket, key);
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + key)
-				.contentType(MediaType.APPLICATION_OCTET_STREAM).body(fileBytes);
-	}
+	//Descarga archivos desde s3, por ejemplo facturas
+	@GetMapping("/s3/{bucket}/object/**")
+	public ResponseEntity<byte[]> downloadS3Object(HttpServletRequest request, @PathVariable String bucket) {
+		String pathDentroMapping = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		String patron = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
 
+		// Extraemos el key exacto después de /object/
+		AntPathMatcher matcher = new AntPathMatcher();
+		String key = matcher.extractPathWithinPattern(patron, pathDentroMapping)
+							.replace("s3/" + bucket + "/object/", "");
+
+		byte[] fileBytes = awsS3Service.downloadAsBytes(bucket, key);
+
+		return ResponseEntity.ok()
+			.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Paths.get(key).getFileName() + "\"")
+			.contentType(MediaType.APPLICATION_OCTET_STREAM)
+			.body(fileBytes);
+	}
+	
 	// Subir archivo
 	@PostMapping("/{bucket}/object")
 	public ResponseEntity<Void> uploadObject(@PathVariable String bucket, @RequestParam String key,
