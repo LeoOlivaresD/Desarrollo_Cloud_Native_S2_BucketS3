@@ -122,8 +122,7 @@ public class FacturaService {
     factura.setNombreArchivo(pdfGenerado.getFileName().toString());
     facturaRepository.save(factura);
 
-    // Devolvemos la URL directa al archivo en S3
-    return "https://" + bucketName + ".s3.amazonaws.com/" + rutaRelativa;
+    return rutaRelativa;
 }
 
 
