@@ -1,7 +1,7 @@
 
-# ms-administracion-archivos
+# Desarrollo Cloud Native
 
-Microservicio Spring Boot para la administración de archivos en **Amazon S3**. Permite listar, descargar, subir, mover y eliminar archivos en buckets de S3 de forma sencilla a través de una API REST.
+Microservicio Spring Boot para la administración de archivos en **Amazon S3**, integrando Api Gateway con IDaaS de Azure. Permite listar, descargar, subir, mover y eliminar archivos en buckets de S3 de forma sencilla a través de una API REST.
 
 ---
 
@@ -23,7 +23,9 @@ Microservicio Spring Boot para la administración de archivos en **Amazon S3**. 
 - Spring Web
 - Spring Cloud AWS (S3) 3.3.1
 - Lombok
-
+- IDaaS (Azure)
+- Spring Security 6
+- JWT
 ---
 
 ## Instalación y configuración
@@ -31,8 +33,8 @@ Microservicio Spring Boot para la administración de archivos en **Amazon S3**. 
 ### 1. Clonar el repositorio
 
 ```sh
-git clone https://github.com/<tu-usuario>/ms-administracion-archivos.git
-cd ms-administracion-archivos
+git clone https://github.com/<tu-usuario>/Desarrollo_Cloud_Native_S2_BucketS3.git
+cd Desarrollo_Cloud_Native_S2_BucketS3
 ```
 
 ### 2. Configurar acceso AWS
