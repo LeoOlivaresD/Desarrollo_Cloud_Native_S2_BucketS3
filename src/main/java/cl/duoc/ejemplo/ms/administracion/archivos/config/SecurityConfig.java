@@ -11,16 +11,21 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-   public SecurityConfig() {
-   }
-   //Aca decimos que cualquier llamada http que llegue debe autorizarse y autenticarse y para ello usaremos el oauth2 con un servidor de recursos el cual validare un jtw que llegara ( en nuestro caso azure)
+    public SecurityConfig() {
+    }
+
+    // Aca decimos que cualquier llamada http que llegue debe autorizarse y
+    // autenticarse y para ello usaremos el oauth2 con un servidor de recursos el
+    // cual validare un jtw que llegara ( en nuestro caso azure)
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(Customizer.withDefaults()).authorizeHttpRequests((authorize) -> {
-            ((AuthorizeHttpRequestsConfigurer.AuthorizedUrl)authorize.anyRequest()).authenticated();
-        }).oauth2ResourceServer((oauth2) -> {
-            oauth2.jwt(Customizer.withDefaults());
-        });
-        return (SecurityFilterChain)http.build();
+        http.cors(Customizer.withDefaults())
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/api/**").permitAll() // ← permite acceso sin autenticación
+                        .anyRequest().authenticated())
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
+
+        return http.build();
     }
+
 }
