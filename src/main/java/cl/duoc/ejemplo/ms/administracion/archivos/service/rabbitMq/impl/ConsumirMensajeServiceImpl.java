@@ -28,7 +28,8 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
 
         try (Connection connection = factory.newConnection(); Channel channel = connection.createChannel()) {
 
-            GetResponse response = channel.basicGet("myQueue", true);
+            GetResponse response = channel.basicGet("queue1", true);
+
 
             if (response != null) {
                 mensaje = new String(response.getBody(), "UTF-8");
@@ -48,10 +49,10 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
     @Override
     public void recibirMensaje(Object objeto) {
 
-        System.out.println("Mensaje recibido en myQueue: " + objeto);
+        System.out.println("Mensaje recibido en queue1: " + objeto);
     }
 
-    @RabbitListener(queues = {"myQueue"}, ackMode = "MANUAL")
+    @RabbitListener(queues = {"queue1"}, ackMode = "MANUAL")
     @Override
     public void recibirMensajeConAckManual(Message mensaje, Channel canal) throws IOException {
 
