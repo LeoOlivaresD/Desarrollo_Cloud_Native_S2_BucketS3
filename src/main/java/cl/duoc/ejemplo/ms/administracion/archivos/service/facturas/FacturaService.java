@@ -96,7 +96,9 @@ public class FacturaService {
 
         return rutaLocal;
     }
-    public String generarYSubirPdfFactura(Long id) throws IOException {
+    /*Metodo funcional antes de cambiar arquitectura para trabajar con colas
+
+     public String generarYSubirPdfFactura(Long id) throws IOException {
         Factura factura = facturaRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Factura no encontrada con ID: " + id));
 
@@ -109,4 +111,6 @@ public class FacturaService {
 
         return pdfGenerado.getFileName().toString();
     }
+     */
+
 }
