@@ -112,5 +112,26 @@ public class FacturaService {
         return pdfGenerado.getFileName().toString();
     }
      */
+     public String generarYSubirPdfFactura(Long id) throws IOException {
+        Factura factura = facturaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Factura no encontrada con ID: " + id));
 
+        try {
+            Path pdfGenerado = generarPdfDesdeFactura(factura);
+            String rutaRelativa = Path.of("/mnt/efs").relativize(pdfGenerado).toString();
+            awsS3Service.uploadFromPath(bucketName, rutaRelativa, pdfGenerado);
+
+            // Enviar mensaje a la cola principal
+            rabbitTemplate.convertAndSend("facturaQueue", factura.getId());
+
+            factura.setNombreArchivo(pdfGenerado.getFileName().toString());
+            facturaRepository.save(factura);
+
+            return pdfGenerado.getFileName().toString();
+        } catch (Exception e) {
+            // Enviar mensaje a la DLQ si ocurre error
+            rabbitTemplate.convertAndSend("facturaDLQ", factura.getId());
+            throw new IOException("Error al generar o subir factura", e);
+        }
+    }
 }
