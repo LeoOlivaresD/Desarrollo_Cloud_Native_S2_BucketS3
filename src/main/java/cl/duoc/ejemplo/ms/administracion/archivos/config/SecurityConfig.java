@@ -22,6 +22,8 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/api/**").permitAll() // ← permite acceso sin autenticación
+                        .requestMatchers("/rabbit-listener/**").permitAll()
+                        .requestMatchers("/rabbit-admin/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
 
