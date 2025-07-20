@@ -24,7 +24,7 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
 
         ConnectionFactory factory = new ConnectionFactory();
 
-        factory.setHost("localhost");
+        factory.setHost("54.158.115.212");
         factory.setUsername("guest");
         factory.setPassword("guest");
 
@@ -53,7 +53,7 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
         System.out.println("Mensaje recibido en myQueue: " + objeto);
     }
 
-    @RabbitListener(queues = RabbitMQConfig.MAIN_QUEUE, ackMode = "MANUAL")
+    @RabbitListener(queues = {"myQueue"}, ackMode = "MANUAL")
     @Override
     public void recibirMensajeConAckManual(Message mensaje, Channel canal) throws IOException {
 
