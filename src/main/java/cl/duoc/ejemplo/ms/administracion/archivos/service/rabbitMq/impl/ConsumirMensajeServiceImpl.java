@@ -58,7 +58,7 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
 
         try {
             System.out.println("Mensaje recibido: " + new String(mensaje.getBody()));
-            Thread.sleep(50000);
+            Thread.sleep(4000);
 
             canal.basicAck(mensaje.getMessageProperties().getDeliveryTag(), false);
             System.out.println("Acknowledge OK enviado");
