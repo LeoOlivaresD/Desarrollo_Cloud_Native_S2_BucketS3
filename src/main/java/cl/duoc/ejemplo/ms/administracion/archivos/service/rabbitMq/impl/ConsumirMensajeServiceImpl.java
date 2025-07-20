@@ -56,7 +56,7 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
 
     
     
-    @RabbitListener(queues = {"myQueue"}, ackMode = "MANUAL")
+    @RabbitListener(id = "listener-myQueue",queues = {"myQueue"}, ackMode = "MANUAL")
 	@Override
 	public void recibirMensajeConAckManual(Message mensaje, Channel canal) throws IOException {
 
