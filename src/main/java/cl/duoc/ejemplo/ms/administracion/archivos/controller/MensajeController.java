@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cl.duoc.ejemplo.ms.administracion.archivos.service.ConsumirMensajeService;
-import cl.duoc.ejemplo.ms.administracion.archivos.service.ProducirMensajeService;
+import cl.duoc.ejemplo.ms.administracion.archivos.service.rabbitMq.ConsumirMensajeService;
+import cl.duoc.ejemplo.ms.administracion.archivos.service.rabbitMq.ProducirMensajeService;
 
 @RestController
 @RequestMapping("/api")

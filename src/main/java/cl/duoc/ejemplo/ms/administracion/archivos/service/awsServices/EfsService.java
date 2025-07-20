@@ -1,4 +1,4 @@
-package cl.duoc.ejemplo.ms.administracion.archivos.service;
+package cl.duoc.ejemplo.ms.administracion.archivos.service.awsServices;
 
 import java.io.File;
 import java.io.IOException;

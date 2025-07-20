@@ -1,4 +1,4 @@
-package cl.duoc.ejemplo.ms.administracion.archivos.service.impl;
+package cl.duoc.ejemplo.ms.administracion.archivos.service.rabbitMq.impl;
 
 import java.io.IOException;
 
@@ -12,7 +12,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
 
 import cl.duoc.ejemplo.ms.administracion.archivos.config.RabbitMQConfig;
-import cl.duoc.ejemplo.ms.administracion.archivos.service.ConsumirMensajeService;
+import cl.duoc.ejemplo.ms.administracion.archivos.service.rabbitMq.ConsumirMensajeService;
 
 @Service
 public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {

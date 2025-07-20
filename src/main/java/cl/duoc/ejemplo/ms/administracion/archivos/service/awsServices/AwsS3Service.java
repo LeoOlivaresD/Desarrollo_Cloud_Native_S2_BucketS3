@@ -1,4 +1,4 @@
-package cl.duoc.ejemplo.ms.administracion.archivos.service;
+package cl.duoc.ejemplo.ms.administracion.archivos.service.awsServices;
 
 import java.nio.file.Path;
 import java.util.List;

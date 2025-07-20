@@ -19,8 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 
 import cl.duoc.ejemplo.ms.administracion.archivos.dto.S3ObjectDto;
-import cl.duoc.ejemplo.ms.administracion.archivos.service.AwsS3Service;
-import cl.duoc.ejemplo.ms.administracion.archivos.service.EfsService;
+import cl.duoc.ejemplo.ms.administracion.archivos.service.awsServices.AwsS3Service;
+import cl.duoc.ejemplo.ms.administracion.archivos.service.awsServices.EfsService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 

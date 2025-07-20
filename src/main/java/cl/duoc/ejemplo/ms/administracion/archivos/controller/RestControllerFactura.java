@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import cl.duoc.ejemplo.ms.administracion.archivos.dto.DtoFactura;
 import cl.duoc.ejemplo.ms.administracion.archivos.entity.Factura;
-import cl.duoc.ejemplo.ms.administracion.archivos.service.FacturaService;
+import cl.duoc.ejemplo.ms.administracion.archivos.service.facturas.FacturaService;
 
 @RestController
 @RequestMapping("/facturas")

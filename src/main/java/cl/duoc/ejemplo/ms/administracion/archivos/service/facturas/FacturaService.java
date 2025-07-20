@@ -1,4 +1,4 @@
-package cl.duoc.ejemplo.ms.administracion.archivos.service;
+package cl.duoc.ejemplo.ms.administracion.archivos.service.facturas;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import cl.duoc.ejemplo.ms.administracion.archivos.entity.Factura;
 import cl.duoc.ejemplo.ms.administracion.archivos.repository.FacturaRepository;
+import cl.duoc.ejemplo.ms.administracion.archivos.service.awsServices.AwsS3Service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
