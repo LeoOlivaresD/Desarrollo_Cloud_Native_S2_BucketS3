@@ -52,13 +52,14 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
         System.out.println("Mensaje recibido en queue1: " + objeto);
     }
 
+    
     @RabbitListener(queues = {"myQueue"}, ackMode = "MANUAL")
     @Override
     public void recibirMensajeConAckManual(Message mensaje, Channel canal) throws IOException {
 
         try {
             System.out.println("Mensaje recibido: " + new String(mensaje.getBody()));
-            Thread.sleep(4000);
+            Thread.sleep(5000); //5 segundos de espera
 
             canal.basicAck(mensaje.getMessageProperties().getDeliveryTag(), false);
             System.out.println("Acknowledge OK enviado");

@@ -112,7 +112,46 @@ public class FacturaService {
         return pdfGenerado.getFileName().toString();
     }
      */
+     
+
      public String generarYSubirPdfFactura(Long id) throws IOException {
+        Factura factura;
+
+            try {
+                factura = facturaRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Factura no encontrada con ID: " + id));
+            } catch (Exception e) {
+                System.out.println("❌ Factura no encontrada → enviando mensaje a DLQ manualmente");
+
+                // 👉 Se envía el ID o una estructura de error a la DLQ
+                String errorMensaje = "ERROR_FACTURA_NOT_FOUND_ID_" + id;
+                rabbitTemplate.convertAndSend("dlx-queue", errorMensaje);
+
+                throw new IOException("Error al generar o subir factura", e);
+            }
+
+        // Si la factura existe, continúa el proceso habitual
+        Path pdfGenerado = generarPdfDesdeFactura(factura);
+
+            try {
+                pdfGenerado = generarPdfDesdeFactura(factura);
+                String rutaRelativa = Path.of("/mnt/efs").relativize(pdfGenerado).toString();
+                awsS3Service.uploadFromPath(bucketName, rutaRelativa, pdfGenerado);
+
+                factura.setNombreArchivo(pdfGenerado.getFileName().toString());
+                facturaRepository.save(factura);
+
+            } catch (Exception e) {
+                factura.setDescripcion("ERROR: " + e.getMessage());
+                facturaRepository.save(factura);
+            }
+
+            // Siempre enviamos el mensaje a la cola principal para procesamiento normal
+            rabbitTemplate.convertAndSend("myQueue", factura.getId());
+
+            return pdfGenerado != null ? pdfGenerado.getFileName().toString() : "ERROR-PDF";
+        }
+     /*public String generarYSubirPdfFactura(Long id) throws IOException {
         Factura factura = facturaRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Factura no encontrada con ID: " + id));
 
@@ -130,8 +169,11 @@ public class FacturaService {
             return pdfGenerado.getFileName().toString();
         } catch (Exception e) {
             // Enviar mensaje a la DLQ si ocurre error
-            rabbitTemplate.convertAndSend("dlx-queue", factura.getId());
+            //rabbitTemplate.convertAndSend("dlx-queue", factura.getId());
+            rabbitTemplate.convertAndSend("myExchange", "", factura.getId());
+
             throw new IOException("Error al generar o subir factura", e);
         }
     }
+        */
 }
