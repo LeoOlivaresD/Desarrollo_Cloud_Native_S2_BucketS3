@@ -122,7 +122,7 @@ public class FacturaService {
             awsS3Service.uploadFromPath(bucketName, rutaRelativa, pdfGenerado);
 
             // Enviar mensaje a la cola principal
-            rabbitTemplate.convertAndSend("facturaQueue", factura.getId());
+            rabbitTemplate.convertAndSend("myQueue", factura.getId());
 
             factura.setNombreArchivo(pdfGenerado.getFileName().toString());
             facturaRepository.save(factura);
@@ -130,7 +130,7 @@ public class FacturaService {
             return pdfGenerado.getFileName().toString();
         } catch (Exception e) {
             // Enviar mensaje a la DLQ si ocurre error
-            rabbitTemplate.convertAndSend("facturaDLQ", factura.getId());
+            rabbitTemplate.convertAndSend("dlx-queue", factura.getId());
             throw new IOException("Error al generar o subir factura", e);
         }
     }

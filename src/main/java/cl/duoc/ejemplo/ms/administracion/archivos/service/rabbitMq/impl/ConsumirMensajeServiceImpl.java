@@ -28,7 +28,7 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
 
         try (Connection connection = factory.newConnection(); Channel channel = connection.createChannel()) {
 
-            GetResponse response = channel.basicGet("queue1", true);
+            GetResponse response = channel.basicGet("myQueue", true);
 
 
             if (response != null) {
@@ -52,13 +52,13 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
         System.out.println("Mensaje recibido en queue1: " + objeto);
     }
 
-    @RabbitListener(queues = {"queue1"}, ackMode = "MANUAL")
+    @RabbitListener(queues = {"myQueue"}, ackMode = "MANUAL")
     @Override
     public void recibirMensajeConAckManual(Message mensaje, Channel canal) throws IOException {
 
         try {
             System.out.println("Mensaje recibido: " + new String(mensaje.getBody()));
-            Thread.sleep(10000);
+            Thread.sleep(50000);
 
             canal.basicAck(mensaje.getMessageProperties().getDeliveryTag(), false);
             System.out.println("Acknowledge OK enviado");
