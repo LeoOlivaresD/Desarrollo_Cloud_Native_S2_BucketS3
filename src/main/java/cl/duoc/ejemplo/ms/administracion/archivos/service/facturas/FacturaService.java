@@ -1,6 +1,9 @@
 package cl.duoc.ejemplo.ms.administracion.archivos.service.facturas;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +26,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FacturaService {
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     private final FacturaRepository facturaRepository;
     private final AwsS3Service awsS3Service;
 

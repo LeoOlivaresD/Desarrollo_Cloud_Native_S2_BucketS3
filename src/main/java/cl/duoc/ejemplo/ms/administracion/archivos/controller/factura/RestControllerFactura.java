@@ -1,4 +1,4 @@
-package cl.duoc.ejemplo.ms.administracion.archivos.controller;
+package cl.duoc.ejemplo.ms.administracion.archivos.controller.factura;
 
 import java.io.IOException;
 import java.util.List;

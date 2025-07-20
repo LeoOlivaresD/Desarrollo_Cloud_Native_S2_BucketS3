@@ -1,4 +1,4 @@
-package cl.duoc.ejemplo.ms.administracion.archivos.controller;
+package cl.duoc.ejemplo.ms.administracion.archivos.controller.rabbitmq;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
