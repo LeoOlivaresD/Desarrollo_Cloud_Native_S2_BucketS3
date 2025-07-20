@@ -20,9 +20,12 @@ public class RabbitMQConfig {
     public static final String QUEUE2 = "dlxQueue";
     public static final String MAIN_EXCHANGE = "mainExchange";
     public static final String DLX_EXCHANGE = "dlx-exchange_errors";
-    public static final String DLX_ROUTING_KEY = "dlx-routing-key_errors";
+
     public static final String MAIN_QUEUE = null;
+    public static final String DLX_ROUTING_KEY = "dlx-routing-key_errors";
     
+    
+     //Conversor JSON para mensajes
     @Bean
     Jackson2JsonMessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
@@ -62,12 +65,6 @@ public class RabbitMQConfig {
 	DirectExchange mainExchange() {
 		return new DirectExchange(MAIN_EXCHANGE);
 	}
-
-    @Bean
-    DirectExchange myExchange() {
-
-        return new DirectExchange(MAIN_EXCHANGE);
-    }   
 
     @Bean
 	DirectExchange dlxExchange() {
