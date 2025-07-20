@@ -10,6 +10,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
+
+import cl.duoc.ejemplo.ms.administracion.archivos.config.RabbitMQConfig;
 import cl.duoc.ejemplo.ms.administracion.archivos.service.rabbitMq.ConsumirMensajeService;
 
 @Service
@@ -53,7 +55,31 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
     }
 
     
-    @RabbitListener(queues = {"myQueue"}, ackMode = "MANUAL")
+    
+    @RabbitListener(id = "listener-myQueue", queues = RabbitMQConfig.MAIN_QUEUE, ackMode = "MANUAL")
+	@Override
+	public void recibirMensajeConAckManual(Message mensaje, Channel canal) throws IOException {
+
+		try {
+
+			String body = new String(mensaje.getBody());
+			System.out.println("Mensaje recibido: " + body);
+
+			if (body.contains("error")) {
+				throw new RuntimeException("Error forzado para probar la DLQ");
+			}
+
+			Thread.sleep(5000);
+
+			canal.basicAck(mensaje.getMessageProperties().getDeliveryTag(), false);
+			System.out.println("Acknowledge OK enviado");
+		} catch (Exception e) {
+			canal.basicNack(mensaje.getMessageProperties().getDeliveryTag(), false, false);
+			System.out.println("Acknowledge NO OK enviado");
+		}
+	}
+
+    /*@RabbitListener(queues = {"myQueue"}, ackMode = "MANUAL")
     @Override
     public void recibirMensajeConAckManual(Message mensaje, Channel canal) throws IOException {
 
@@ -67,5 +93,5 @@ public class ConsumirMensajeServiceImpl implements ConsumirMensajeService {
             canal.basicNack(mensaje.getMessageProperties().getDeliveryTag(), false, false);
             System.out.println("Acknowledge NO OK enviado");
         }
-    }
+    }*/
 }
